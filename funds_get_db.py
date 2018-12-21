@@ -98,7 +98,7 @@ if __name__ == '__main__':
     if run_click:
         export_to_excel()
     else:
-        pages = 1211
+        pages = 1221
         table_time_str = "日期"+time.strftime("%Y%m%d", time.localtime(time.time()))
         db_connection = sqlite3.connect('./simu2.db')
         table_names = db_connection.execute("""SELECT name FROM sqlite_master WHERE type = 'table' ORDER BY name""").fetchall() # 返回元素为一个元素为元组的列表
