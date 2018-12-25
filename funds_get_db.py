@@ -39,20 +39,20 @@ def iter_list_values(post_params):
                              data=json.dumps(request_params), headers=headers)  # json 请求, params 是请求参数，data是json请求
     for i in range(20):
         list_values = [json.loads(response.text)['content'][i][x] for x in
-                       'managerName fundScale fundCount officeAddress officeProvince primaryInvestType establishDate'.split()]
+                       'managerName fundScale fundCount officeAddress officeProvince primaryInvestType establishDate registerDate registerNo'.split()]
         yield list_values
 
 # 写入数据库
 def create_table():
     global creat_table_sql, i, post_params, iter_list_val
     with db_connection:
-        creat_table_sql = """CREATE TABLE IF NOT EXISTS %s (公司名称 TEXT, 管理规模 FLOAT, 产品数量 INT, 办公地址 TEXT, 省份 TEXT, 牌照类型 TEXT, 成立时间 DATE)""" % table_time_str
+        creat_table_sql = """CREATE TABLE IF NOT EXISTS %s (公司名称 TEXT, 管理规模 FLOAT, 产品数量 INT, 办公地址 TEXT, 省份 TEXT, 牌照类型 TEXT, 成立时间 DATE, 注册时间 DATE, 注册号 TEXT)""" % table_time_str
         db_connection.execute(creat_table_sql)
         # iter_list_val = iter_list_values(post_params=get_post_params(pages)) # 获取每页的条目的迭代器
         for i in tqdm(range(pages)):  # 获取所有1211页的条目
             post_params = get_post_params(i)
             iter_list_val = iter_list_values(post_params)
-            db_connection.executemany("INSERT INTO %s VALUES(?,?,?,?,?,?,?)" % table_time_str, iter_list_val)
+            db_connection.executemany("INSERT INTO %s VALUES(?,?,?,?,?,?,?,?,?)" % table_time_str, iter_list_val)
             # count = db_connection.execute('SELECT count(*) FROM %s' % table_time_str).fetchall()[0][0]
             # print('本次获取到%s条记录'%count)
 
@@ -78,7 +78,9 @@ def export_to_excel():
             sheet.column_dimensions['E'].width = 8
             sheet.column_dimensions['F'].width = 30
             sheet.column_dimensions['G'].width = 10
-            table_head = ['公司名称', '管理规模', '产品数量', '办公地址', '省份', '牌照类型','成立时间']
+            sheet.column_dimensions['H'].width = 10
+            sheet.column_dimensions['I'].width = 10
+            table_head = ['公司名称', '管理规模', '产品数量', '办公地址', '省份', '牌照类型','成立时间','注册时间','注册号']
             sheet.append(table_head)
             data = db_connection.execute('SELECT * FROM %s' % export_excel)
             print('正在导出excel，请稍后...')
