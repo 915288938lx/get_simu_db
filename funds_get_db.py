@@ -31,7 +31,14 @@ def get_post_params(page):
         'size': '20'
     }  # 这些请求参数如果出现在地址栏中， 那么需要使用urlencode方法将这些参数编码
     return post_params
+# 获取总页数
+def get_total_pages():
+    post_params = get_post_params(0)
+    response = requests.post('http://gs.amac.org.cn/amac-infodisc/api/pof/manager?', params=post_params,
+                             data=json.dumps(request_params), headers=headers)
 
+    pages_num = json.loads(response.text)['totalPages']-1
+    return pages_num
 
 # 获取每页的关键信息,并添加到excel中
 def iter_list_values(post_params):
@@ -101,7 +108,7 @@ if __name__ == '__main__':
     if run_click:
         export_to_excel()
     else:
-        pages = 1221
+        pages = get_total_pages()
         table_time_str = "日期"+time.strftime("%Y%m%d", time.localtime(time.time()))
         db_connection = sqlite3.connect('./simu2.db')
         table_names = db_connection.execute("""SELECT name FROM sqlite_master WHERE type = 'table' ORDER BY name""").fetchall() # 返回元素为一个元素为元组的列表
